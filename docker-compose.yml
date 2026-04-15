@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: auction-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-auction}
+      POSTGRES_USER: ${DB_USERNAME:-auction}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-auction} -d ${DB_NAME:-auction}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auction-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-auction}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-auction}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${APP_PORT:-8081}:8080"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

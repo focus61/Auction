@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новый лот | Аукцион</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="content-card">
+    <div class="page-head">
+        <div>
+            <h1>Публикация лота</h1>
+            <p>Укажите название, описание, стартовую цену, шаг ставки и время завершения торгов.</p>
+        </div>
+        <a class="button ghost" th:href="@{/}">Назад</a>
+    </div>
+
+    <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <form method="post" th:action="@{/seller/lots}" th:object="${lotForm}" class="stack">
+        <label class="form-field">
+            <span class="field-label">Название</span>
+            <input type="text" th:field="*{title}" required>
+            <span class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+        </label>
+        <label class="form-field">
+            <span class="field-label">Описание</span>
+            <textarea th:field="*{description}" rows="5" required></textarea>
+            <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+        </label>
+        <div class="grid two">
+            <label class="form-field">
+                <span class="field-label">Стартовая цена</span>
+                <input type="number" step="0.01" th:field="*{startPrice}" required>
+                <span class="field-error" th:if="${#fields.hasErrors('startPrice')}" th:errors="*{startPrice}"></span>
+            </label>
+            <label class="form-field">
+                <span class="field-label">Шаг ставки</span>
+                <input type="number" step="0.01" th:field="*{minStep}" required>
+                <span class="field-error" th:if="${#fields.hasErrors('minStep')}" th:errors="*{minStep}"></span>
+            </label>
+        </div>
+        <label class="form-field">
+            <span class="field-label">Время окончания</span>
+            <input type="datetime-local" th:field="*{endTime}" required>
+            <span class="field-error" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}"></span>
+        </label>
+        <button class="wide-button" type="submit">Опубликовать лот</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход | Аукцион</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <h1>Аукцион</h1>
+    <p>Вход в систему аукциона</p>
+
+    <div class="alert success" th:if="${param.registered}">Регистрация завершена. Теперь можно войти.</div>
+    <div class="alert success" th:if="${param.logout}">Сеанс завершен.</div>
+    <div class="alert error" th:if="${param.error}">Неверный логин или пароль.</div>
+
+    <form method="post" th:action="@{/login}" class="stack">
+        <label class="form-field">
+            <span class="field-label">Логин</span>
+            <input type="text" name="username" required>
+        </label>
+        <label class="form-field">
+            <span class="field-label">Пароль</span>
+            <input type="password" name="password" required>
+        </label>
+        <button class="wide-button" type="submit">Войти</button>
+    </form>
+
+    <a class="link centered-link" th:href="@{/register}">Создать аккаунт</a>
+</main>
+</body>
+</html>

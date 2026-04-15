@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | Аукцион</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <h1>Регистрация</h1>
+    <p>Создайте аккаунт продавца или участника торгов.</p>
+
+    <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <form method="post" th:action="@{/register}" th:object="${registrationForm}" class="stack">
+        <label class="form-field">
+            <span class="field-label">ФИО</span>
+            <input type="text" th:field="*{fullName}" required>
+            <span class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
+        </label>
+        <label class="form-field">
+            <span class="field-label">Логин</span>
+            <input type="text" th:field="*{username}" required>
+            <span class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+        </label>
+        <label class="form-field">
+            <span class="field-label">Пароль</span>
+            <input type="password" th:field="*{password}" required>
+            <span class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+        </label>
+        <label class="form-field">
+            <span class="field-label">Роль</span>
+            <select th:field="*{role}" required>
+                <option value="">Выберите роль</option>
+                <option th:each="role : ${roles}" th:value="${role}" th:text="${role.displayName}"></option>
+            </select>
+            <span class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></span>
+        </label>
+        <button class="wide-button" type="submit">Зарегистрироваться</button>
+    </form>
+
+    <a class="link centered-link" th:href="@{/login}">У меня уже есть аккаунт</a>
+</main>
+</body>
+</html>

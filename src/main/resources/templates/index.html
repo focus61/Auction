@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аукцион</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <h1>Аукцион</h1>
+        <p th:text="'Пользователь: ' + ${currentUser.fullName} + ' (' + ${role.displayName} + ')'"></p>
+    </div>
+    <div class="topbar-actions">
+        <a class="button secondary" th:if="${role.name() == 'SELLER'}" th:href="@{/seller/lots/new}">Новый лот</a>
+        <form method="post" th:action="@{/logout}">
+            <button class="button ghost" type="submit">Выйти</button>
+        </form>
+    </div>
+</header>
+
+<main class="layout">
+    <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+    <section class="panel">
+        <h2 th:text="${role.name() == 'SELLER' ? 'Мои лоты' : 'Активные и завершенные лоты'}"></h2>
+        <div class="cards">
+            <p th:if="${#lists.isEmpty(lots)}">Лотов пока нет.</p>
+            <article class="card" th:each="lot : ${lots}">
+                <div class="status-row">
+                    <span class="badge" th:text="${lot.status.displayName}"></span>
+                    <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
+                </div>
+                <h3 th:text="${lot.title}"></h3>
+                <p th:text="${lot.description}"></p>
+                <dl class="price-list">
+                    <div>
+                        <dt>Текущая цена</dt>
+                        <dd th:text="${lot.currentPrice} + ' ₽'"></dd>
+                    </div>
+                    <div>
+                        <dt>Шаг</dt>
+                        <dd th:text="${lot.minStep} + ' ₽'"></dd>
+                    </div>
+                    <div>
+                        <dt>Продавец</dt>
+                        <dd th:text="${lot.seller.fullName}"></dd>
+                    </div>
+                    <div th:if="${lot.winner != null}">
+                        <dt>Лидер / победитель</dt>
+                        <dd th:text="${lot.winner.fullName}"></dd>
+                    </div>
+                </dl>
+                <a class="button" th:href="@{'/lots/' + ${lot.id}}">Открыть</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="panel" th:if="${role.name() == 'ADMIN'}">
+        <h2>Экран администратора</h2>
+        <p>Администратор просматривает все лоты и контролирует ход торгов. Создание лотов и ставки доступны только профильным ролям.</p>
+    </section>
+
+    <section class="panel" th:if="${myBids != null}">
+        <h2>Мои ставки</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Лот</th>
+                <th>Сумма</th>
+                <th>Время</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="bid : ${myBids}">
+                <td><a th:href="@{'/lots/' + ${bid.lot.id}}" th:text="${bid.lot.title}"></a></td>
+                <td th:text="${bid.amount} + ' ₽'"></td>
+                <td th:text="${#temporals.format(bid.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

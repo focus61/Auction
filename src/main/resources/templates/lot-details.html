@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lot.title} + ' | Аукцион'"></title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="layout detail-layout">
+    <section class="panel">
+        <div class="page-head">
+            <div>
+                <div class="status-row">
+                    <span class="badge" th:text="${lot.status.displayName}"></span>
+                    <span th:text="'До ' + ${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
+                </div>
+                <h1 th:text="${lot.title}"></h1>
+            </div>
+            <a class="button ghost" th:href="@{/}">Назад</a>
+        </div>
+
+        <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+        <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+        <p th:text="${lot.description}"></p>
+
+        <dl class="price-list">
+            <div>
+                <dt>Текущая цена</dt>
+                <dd th:text="${lot.currentPrice} + ' ₽'"></dd>
+            </div>
+            <div>
+                <dt>Минимальная следующая ставка</dt>
+                <dd th:text="${minimumNextBid != null ? minimumNextBid + ' ₽' : 'Торги завершены'}"></dd>
+            </div>
+            <div>
+                <dt>Продавец</dt>
+                <dd th:text="${lot.seller.fullName}"></dd>
+            </div>
+            <div>
+                <dt>Лидер / победитель</dt>
+                <dd th:text="${lot.winner != null ? lot.winner.fullName : 'Пока нет'}"></dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="panel" th:if="${currentUser.role.name() == 'BIDDER'}">
+        <h2>Сделать ставку</h2>
+        <form method="post" th:action="@{'/bidder/lots/' + ${lot.id} + '/bids'}" th:object="${bidForm}" class="stack">
+            <label class="form-field">
+                <span class="field-label">Сумма ставки</span>
+                <input type="number" step="0.01" th:field="*{amount}" th:disabled="${lot.status.name() == 'CLOSED'}" required>
+                <span class="field-error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></span>
+            </label>
+            <button class="wide-button" type="submit" th:disabled="${lot.status.name() == 'CLOSED'}">Подтвердить ставку</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>История ставок</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Участник</th>
+                <th>Сумма</th>
+                <th>Время</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(bidHistory)}">
+                <td colspan="3">Ставок пока нет.</td>
+            </tr>
+            <tr th:each="bid : ${bidHistory}">
+                <td th:text="${bid.bidder.fullName}"></td>
+                <td th:text="${bid.amount} + ' ₽'"></td>
+                <td th:text="${#temporals.format(bid.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
