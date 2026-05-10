@@ -146,6 +146,10 @@ label {
     align-items: start;
 }
 
+.admin-layout {
+    grid-template-columns: 1fr;
+}
+
 .panel {
     background: rgba(255, 253, 249, 0.94);
     border: 1px solid rgba(223, 208, 191, 0.8);
@@ -165,6 +169,17 @@ label {
     border-radius: 20px;
     padding: 1.2rem;
     background: linear-gradient(180deg, #fffaf3 0%, #fff 100%);
+}
+
+.card.is-open,
+.lot-overview.is-open {
+    border-color: rgba(45, 106, 79, 0.28);
+}
+
+.card.is-closed,
+.lot-overview.is-closed {
+    border-color: rgba(110, 98, 88, 0.3);
+    background: linear-gradient(180deg, #f5f1eb 0%, #fcfbf8 100%);
 }
 
 .status-row,
@@ -195,6 +210,18 @@ label {
     background: var(--surface-alt);
     border: 1px solid var(--border);
     font-size: 0.8rem;
+}
+
+.badge.status-open {
+    background: rgba(45, 106, 79, 0.12);
+    border-color: rgba(45, 106, 79, 0.25);
+    color: var(--success);
+}
+
+.badge.status-closed {
+    background: rgba(110, 98, 88, 0.14);
+    border-color: rgba(110, 98, 88, 0.28);
+    color: var(--muted);
 }
 
 .price-list {
@@ -251,6 +278,22 @@ label {
 
 .demo-box p {
     margin-bottom: 0;
+}
+
+.history-block {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(248, 241, 230, 0.55);
+}
+
+.history-block h3 {
+    margin: 0 0 0.35rem;
+}
+
+.closed-state {
+    border-color: rgba(110, 98, 88, 0.3);
+    background: rgba(245, 241, 235, 0.9);
 }
 
 .centered-link {

@@ -27,9 +27,9 @@
         <h2 th:text="${role.name() == 'SELLER' ? 'Мои лоты' : 'Активные и завершенные лоты'}"></h2>
         <div class="cards">
             <p th:if="${#lists.isEmpty(lots)}">Лотов пока нет.</p>
-            <article class="card" th:each="lot : ${lots}">
+            <article class="card" th:each="lot : ${lots}" th:classappend="${lot.status.name() == 'CLOSED'} ? ' is-closed' : ' is-open'">
                 <div class="status-row">
-                    <span class="badge" th:text="${lot.status.displayName}"></span>
+                    <span class="badge" th:classappend="${lot.status.name() == 'CLOSED'} ? ' status-closed' : ' status-open'" th:text="${lot.status.displayName}"></span>
                     <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
                 </div>
                 <h3 th:text="${lot.title}"></h3>
@@ -55,11 +55,6 @@
                 <a class="button" th:href="@{'/lots/' + ${lot.id}}">Открыть</a>
             </article>
         </div>
-    </section>
-
-    <section class="panel" th:if="${role.name() == 'ADMIN'}">
-        <h2>Экран администратора</h2>
-        <p>Администратор просматривает все лоты и контролирует ход торгов. Создание лотов и ставки доступны только профильным ролям.</p>
     </section>
 
     <section class="panel" th:if="${myBids != null}">

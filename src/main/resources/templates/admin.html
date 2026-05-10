@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администрирование | Аукцион</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <h1>Администрирование</h1>
+        <p th:text="'Пользователь: ' + ${currentUser.fullName} + ' (' + ${currentUser.role.displayName} + ')'"></p>
+    </div>
+    <div class="topbar-actions">
+        <a class="button secondary" th:href="@{/admin}">Обновить</a>
+        <form method="post" th:action="@{/logout}">
+            <button class="button ghost" type="submit">Выйти</button>
+        </form>
+    </div>
+</header>
+
+<main class="layout admin-layout">
+    <section class="panel">
+        <h2>Пользователи</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Логин</th>
+                <th>Роль</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.fullName}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.role.displayName}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Лоты</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Лот</th>
+                <th>Статус</th>
+                <th>Текущая цена</th>
+                <th>Продавец</th>
+                <th>Окончание</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="lot : ${lots}">
+                <td th:text="${lot.id}"></td>
+                <td th:text="${lot.title}"></td>
+                <td th:text="${lot.status.displayName}"></td>
+                <td th:text="${lot.currentPrice} + ' ₽'"></td>
+                <td th:text="${lot.seller.fullName}"></td>
+                <td th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Результаты торгов</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID лота</th>
+                <th>Лот</th>
+                <th>Итоговая цена</th>
+                <th>Победитель</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(closedLots)}">
+                <td colspan="4">Завершенных аукционов пока нет.</td>
+            </tr>
+            <tr th:each="lot : ${closedLots}">
+                <td th:text="${lot.id}"></td>
+                <td th:text="${lot.title}"></td>
+                <td th:text="${lot.currentPrice} + ' ₽'"></td>
+                <td th:text="${lot.winner != null ? lot.winner.fullName : 'Нет ставок'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>История ставок</h2>
+        <div class="stack">
+            <article class="history-block" th:each="entry : ${bidHistories}">
+                <div class="page-head">
+                    <div>
+                        <h3 th:text="${entry.lot.title}"></h3>
+                        <p th:text="'Статус: ' + ${entry.lot.status.displayName}"></p>
+                    </div>
+                    <a class="button ghost" th:href="@{'/lots/' + ${entry.lot.id}}">Открыть лот</a>
+                </div>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Участник</th>
+                        <th>Сумма</th>
+                        <th>Время</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(entry.bids)}">
+                        <td colspan="3">Ставок по лоту нет.</td>
+                    </tr>
+                    <tr th:each="bid : ${entry.bids}">
+                        <td th:text="${bid.bidder.fullName}"></td>
+                        <td th:text="${bid.amount} + ' ₽'"></td>
+                        <td th:text="${#temporals.format(bid.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -28,6 +28,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-auction}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-auction}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-}
+      APP_ADMIN_FULL_NAME: ${APP_ADMIN_FULL_NAME:-Администратор}
     ports:
       - "${APP_PORT:-8081}:8080"
     restart: unless-stopped

@@ -26,6 +26,10 @@ public class HomeController {
     @GetMapping("/")
     public String home(Authentication authentication, Model model) {
         User currentUser = userService.getByUsername(authentication.getName());
+        if (currentUser.getRole() == Role.ADMIN) {
+            return "redirect:/admin";
+        }
+
         boolean isSeller = currentUser.getRole() == Role.SELLER;
         boolean isBidder = currentUser.getRole() == Role.BIDDER;
 

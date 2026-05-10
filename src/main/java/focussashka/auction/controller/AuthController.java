@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AuthController {
@@ -23,7 +24,18 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(@RequestParam(required = false) String error,
+                        @RequestParam(required = false) String logout,
+                        @RequestParam(required = false) String registered,
+                        Model model) {
+        if (error != null) {
+            model.addAttribute("authErrorMessage", "Неверный логин или пароль.");
+        } else if (logout != null) {
+            model.addAttribute("authSuccessMessage", "Сеанс завершен.");
+        } else if (registered != null) {
+            model.addAttribute("authSuccessMessage", "Регистрация завершена. Теперь можно войти.");
+        }
+        model.addAttribute("clearAuthMessageParams", error != null || logout != null || registered != null);
         return "login";
     }
 

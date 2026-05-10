@@ -38,32 +38,33 @@ public class BidService {
 
     @Transactional
     public Bid placeBid(Lot lot, BidForm form, User bidder) {
-        lotService.closeExpiredLots();
+        Lot lockedLot = lotRepository.findByIdForUpdate(lot.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Лот не найден."));
         LocalDateTime now = LocalDateTime.now();
         if (bidder.getRole() != Role.BIDDER) {
             throw new IllegalArgumentException("Только участник торгов может делать ставки.");
         }
-        if (lot.getStatus() != LotStatus.OPEN || lot.getEndTime().isBefore(now)) {
+        if (lockedLot.getStatus() != LotStatus.OPEN || !lockedLot.getEndTime().isAfter(now)) {
             throw new IllegalArgumentException("Торги по лоту уже завершены.");
         }
-        if (lot.getSeller().getId().equals(bidder.getId())) {
+        if (lockedLot.getSeller().getId().equals(bidder.getId())) {
             throw new IllegalArgumentException("Нельзя делать ставку на собственный лот.");
         }
 
-        BigDecimal minimumAmount = lotService.getMinimumNextBid(lot);
+        BigDecimal minimumAmount = lotService.getMinimumNextBid(lockedLot);
         if (form.getAmount().compareTo(minimumAmount) < 0) {
             throw new IllegalArgumentException("Ставка должна быть не меньше " + minimumAmount + ".");
         }
 
         Bid bid = new Bid();
-        bid.setLot(lot);
+        bid.setLot(lockedLot);
         bid.setBidder(bidder);
         bid.setAmount(form.getAmount());
         bid.setCreatedAt(now);
 
-        lot.setCurrentPrice(form.getAmount());
-        lot.setWinner(bidder);
-        lotRepository.save(lot);
+        lockedLot.setCurrentPrice(form.getAmount());
+        lockedLot.setWinner(bidder);
+        lotRepository.save(lockedLot);
         return bidRepository.save(bid);
     }
 }
