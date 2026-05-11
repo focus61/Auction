@@ -56,7 +56,7 @@ public class LotController {
             return "lot-form";
         }
 
-        User seller = userService.getByUsername(authentication.getName());
+        User seller = getCurrentUser(authentication);
         try {
             lotService.create(lotForm, seller);
         } catch (IllegalArgumentException ex) {
@@ -71,10 +71,9 @@ public class LotController {
     @GetMapping("/lots/{id}")
     public String lotDetails(@PathVariable Long id, Authentication authentication, Model model) {
         Lot lot = lotService.getById(id);
-        User currentUser = userService.getByUsername(authentication.getName());
+        User currentUser = getCurrentUser(authentication);
         ensureLotAccess(lot, currentUser);
-        BidForm bidForm = new BidForm();
-        populateLotDetailsModel(model, lot, currentUser, bidForm);
+        populateLotDetailsModel(model, lot, currentUser, new BidForm());
         return "lot-details";
     }
 
@@ -86,7 +85,7 @@ public class LotController {
                            RedirectAttributes redirectAttributes,
                            Model model) {
         Lot lot = lotService.getById(id);
-        User bidder = userService.getByUsername(authentication.getName());
+        User bidder = getCurrentUser(authentication);
         ensureLotAccess(lot, bidder);
 
         if (bindingResult.hasErrors()) {
@@ -104,6 +103,10 @@ public class LotController {
         return "redirect:/lots/" + id;
     }
 
+    private User getCurrentUser(Authentication authentication) {
+        return userService.getByUsername(authentication.getName());
+    }
+
     private void populateLotDetailsModel(Model model, Lot lot, User currentUser, BidForm bidForm) {
         if (lot.getStatus() == LotStatus.OPEN && bidForm.getAmount() == null) {
             bidForm.setAmount(lotService.getMinimumNextBid(lot));
@@ -117,8 +120,9 @@ public class LotController {
     }
 
     private void ensureLotAccess(Lot lot, User currentUser) {
-        if (currentUser.getRole() == Role.SELLER
-                && !lot.getSeller().getId().equals(currentUser.getId())) {
+        boolean foreignSellerLot = currentUser.getRole() == Role.SELLER
+                && !lot.getSeller().getId().equals(currentUser.getId());
+        if (foreignSellerLot) {
             throw new ResponseStatusException(FORBIDDEN, "Продавец может просматривать только свои лоты.");
         }
     }

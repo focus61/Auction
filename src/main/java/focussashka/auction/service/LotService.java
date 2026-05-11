@@ -48,16 +48,7 @@ public class LotService {
             throw new IllegalArgumentException("Только продавец может создавать лоты.");
         }
 
-        Lot lot = new Lot();
-        lot.setTitle(form.getTitle());
-        lot.setDescription(form.getDescription());
-        lot.setStartPrice(form.getStartPrice());
-        lot.setCurrentPrice(form.getStartPrice());
-        lot.setMinStep(form.getMinStep());
-        lot.setEndTime(form.getEndTime());
-        lot.setSeller(seller);
-        lot.setStatus(LotStatus.OPEN);
-        return lotRepository.save(lot);
+        return lotRepository.save(buildLot(form, seller));
     }
 
     public BigDecimal getMinimumNextBid(Lot lot) {
@@ -78,9 +69,23 @@ public class LotService {
     }
 
     private void closeLot(Lot lot) {
-        Bid highestBid = bidRepository.findFirstByLotOrderByAmountDescCreatedAtAsc(lot).orElse(null);
         lot.setStatus(LotStatus.CLOSED);
-        lot.setWinner(highestBid != null ? highestBid.getBidder() : null);
+        lot.setWinner(bidRepository.findFirstByLotOrderByAmountDescCreatedAtAsc(lot)
+                .map(Bid::getBidder)
+                .orElse(null));
         lotRepository.save(lot);
+    }
+
+    private Lot buildLot(LotForm form, User seller) {
+        Lot lot = new Lot();
+        lot.setTitle(form.getTitle());
+        lot.setDescription(form.getDescription());
+        lot.setStartPrice(form.getStartPrice());
+        lot.setCurrentPrice(form.getStartPrice());
+        lot.setMinStep(form.getMinStep());
+        lot.setEndTime(form.getEndTime());
+        lot.setSeller(seller);
+        lot.setStatus(LotStatus.OPEN);
+        return lot;
     }
 }

@@ -25,7 +25,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Authentication authentication, Model model) {
-        User currentUser = userService.getByUsername(authentication.getName());
+        User currentUser = getCurrentUser(authentication);
         if (currentUser.getRole() == Role.ADMIN) {
             return "redirect:/admin";
         }
@@ -38,5 +38,9 @@ public class HomeController {
         model.addAttribute("lots", isSeller ? lotService.findSellerLots(currentUser) : lotService.findAll());
         model.addAttribute("myBids", isBidder ? bidService.findForBidder(currentUser) : null);
         return "index";
+    }
+
+    private User getCurrentUser(Authentication authentication) {
+        return userService.getByUsername(authentication.getName());
     }
 }

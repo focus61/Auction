@@ -23,7 +23,7 @@ public class AdminBootstrapConfig {
                                             @Value("${app.admin.password:}") String password,
                                             @Value("${app.admin.full-name:Администратор}") String fullName) {
         return args -> {
-            if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            if (username.isBlank() || password.isBlank()) {
                 log.info("Admin bootstrap skipped: APP_ADMIN_USERNAME / APP_ADMIN_PASSWORD not provided.");
                 return;
             }
@@ -37,13 +37,17 @@ public class AdminBootstrapConfig {
                 return;
             }
 
-            User admin = new User();
-            admin.setFullName(fullName);
-            admin.setUsername(username);
-            admin.setPassword(passwordEncoder.encode(password));
-            admin.setRole(Role.ADMIN);
-            userRepository.saveAndFlush(admin);
+            userRepository.saveAndFlush(createAdmin(username, password, fullName, passwordEncoder));
             log.info("Admin bootstrap: user '{}' created.", username);
         };
+    }
+
+    private User createAdmin(String username, String password, String fullName, PasswordEncoder passwordEncoder) {
+        User admin = new User();
+        admin.setFullName(fullName);
+        admin.setUsername(username);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setRole(Role.ADMIN);
+        return admin;
     }
 }

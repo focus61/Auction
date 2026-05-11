@@ -29,7 +29,7 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String adminDashboard(Authentication authentication, Model model) {
-        User currentUser = userService.getByUsername(authentication.getName());
+        User currentUser = getCurrentUser(authentication);
         List<User> users = userService.findAllUsers();
         List<Lot> lots = lotService.findAll();
         List<Lot> closedLots = lots.stream()
@@ -47,22 +47,10 @@ public class AdminController {
         return "admin";
     }
 
-    public static class LotBidHistoryView {
+    private User getCurrentUser(Authentication authentication) {
+        return userService.getByUsername(authentication.getName());
+    }
 
-        private final Lot lot;
-        private final List<Bid> bids;
-
-        public LotBidHistoryView(Lot lot, List<Bid> bids) {
-            this.lot = lot;
-            this.bids = bids;
-        }
-
-        public Lot getLot() {
-            return lot;
-        }
-
-        public List<Bid> getBids() {
-            return bids;
-        }
+    public record LotBidHistoryView(Lot lot, List<Bid> bids) {
     }
 }

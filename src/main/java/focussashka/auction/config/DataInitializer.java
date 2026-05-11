@@ -39,18 +39,7 @@ public class DataInitializer {
             createUser(userRepository, passwordEncoder, "Системный администратор", "admin", adminPassword, Role.ADMIN);
             User seller = createUser(userRepository, passwordEncoder, "Демо-продавец", "seller", sellerPassword, Role.SELLER);
             createUser(userRepository, passwordEncoder, "Демо-участник торгов", "bidder", bidderPassword, Role.BIDDER);
-
-            Lot lot = new Lot();
-            lot.setTitle("Ноутбук Lenovo ThinkPad");
-            lot.setDescription("Рабочий ноутбук для демонстрации аукционной системы.");
-            lot.setStartPrice(new BigDecimal("25000.00"));
-            lot.setCurrentPrice(new BigDecimal("25000.00"));
-            lot.setMinStep(new BigDecimal("1000.00"));
-            lot.setEndTime(LocalDateTime.now().plusDays(2));
-            lot.setStatus(LotStatus.OPEN);
-            lot.setSeller(seller);
-            lot.setWinner(null);
-            lotRepository.save(lot);
+            lotRepository.save(createDemoLot(seller));
         };
     }
 
@@ -72,5 +61,18 @@ public class DataInitializer {
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRole(role);
         return userRepository.save(user);
+    }
+
+    private Lot createDemoLot(User seller) {
+        Lot lot = new Lot();
+        lot.setTitle("Ноутбук Lenovo ThinkPad");
+        lot.setDescription("Рабочий ноутбук для демонстрации аукционной системы.");
+        lot.setStartPrice(new BigDecimal("25000.00"));
+        lot.setCurrentPrice(new BigDecimal("25000.00"));
+        lot.setMinStep(new BigDecimal("1000.00"));
+        lot.setEndTime(LocalDateTime.now().plusDays(2));
+        lot.setStatus(LotStatus.OPEN);
+        lot.setSeller(seller);
+        return lot;
     }
 }

@@ -41,15 +41,8 @@ public class BidService {
         Lot lockedLot = lotRepository.findByIdForUpdate(lot.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Лот не найден."));
         LocalDateTime now = LocalDateTime.now();
-        if (bidder.getRole() != Role.BIDDER) {
-            throw new IllegalArgumentException("Только участник торгов может делать ставки.");
-        }
-        if (lockedLot.getStatus() != LotStatus.OPEN || !lockedLot.getEndTime().isAfter(now)) {
-            throw new IllegalArgumentException("Торги по лоту уже завершены.");
-        }
-        if (lockedLot.getSeller().getId().equals(bidder.getId())) {
-            throw new IllegalArgumentException("Нельзя делать ставку на собственный лот.");
-        }
+        validateBidder(bidder);
+        validateLotAvailability(lockedLot, bidder, now);
 
         BigDecimal minimumAmount = lotService.getMinimumNextBid(lockedLot);
         if (form.getAmount().compareTo(minimumAmount) < 0) {
@@ -62,9 +55,24 @@ public class BidService {
         bid.setAmount(form.getAmount());
         bid.setCreatedAt(now);
 
-        lockedLot.setCurrentPrice(form.getAmount());
+        lockedLot.setCurrentPrice(bid.getAmount());
         lockedLot.setWinner(bidder);
         lotRepository.save(lockedLot);
         return bidRepository.save(bid);
+    }
+
+    private void validateBidder(User bidder) {
+        if (bidder.getRole() != Role.BIDDER) {
+            throw new IllegalArgumentException("Только участник торгов может делать ставки.");
+        }
+    }
+
+    private void validateLotAvailability(Lot lot, User bidder, LocalDateTime now) {
+        if (lot.getStatus() != LotStatus.OPEN || !lot.getEndTime().isAfter(now)) {
+            throw new IllegalArgumentException("Торги по лоту уже завершены.");
+        }
+        if (lot.getSeller().getId().equals(bidder.getId())) {
+            throw new IllegalArgumentException("Нельзя делать ставку на собственный лот.");
+        }
     }
 }
